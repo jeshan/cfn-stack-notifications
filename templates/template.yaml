@@ -2,9 +2,16 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'adds an sns topic to all your cfn stacks in this region'
 Transform: AWS::Serverless-2016-10-31
 
+Parameters:
+  TopicName:
+    Type: String
+    Default: cloudformation-stack-events
+
 Resources:
   Topic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Ref TopicName
 
   Fn:
     Type: AWS::Serverless::Function
