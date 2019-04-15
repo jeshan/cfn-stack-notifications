@@ -9,5 +9,11 @@ If you use [sceptre](https://github.com/cloudreach/sceptre), you can deploy this
 
 `sceptre launch -y dev`
 
+or deploy with this button: 
+
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=myteststack&templateURL=https://s3.amazonaws.com/jeshan-oss-public-files/cfn-stack-notifications-template.yaml">
+<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
+</a>
+
 
 Note that this project is still experimental. Please share your experiences with the community.
