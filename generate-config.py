@@ -5,6 +5,7 @@ regions = 'us-east-1,us-east-2,eu-west-1,us-west-1,us-west-2,ap-south-1,ap-south
 
 
 def go(env):
+    open(f'config/{env}/config.yaml', 'w')
     for region in regions:
         with open(f'config/{env}/{region}.yaml', 'w') as f:
             f.write(f"""template_path: template.yaml
