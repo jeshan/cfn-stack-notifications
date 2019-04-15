@@ -42,8 +42,20 @@ Resources:
           else:
             print(topic, 'was already in', stack_name)
       Handler: index.handler
-      Role: !Sub '${Role.Arn}'
+      Timeout: 30
+      MemorySize: 128
       Runtime: python3.7
+      Policies:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - cloudformation:UpdateStack
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - sns:Publish
+            Resource: !Ref Topic
       Environment:
         Variables:
           CURRENT_STACK: !Ref AWS::StackId
@@ -58,30 +70,6 @@ Resources:
               detail:
                 eventSource: ['cloudformation.amazonaws.com']
                 eventName: ['CreateStack', 'UpdateStack']
-
-  Role:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-      ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole']
-      Policies:
-        - PolicyName: role
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - cloudformation:UpdateStack
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - sns:Publish
-                Resource: !Ref Topic
 
 Outputs:
   TopicArn:
