@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'adds an sns topic to all your cfn stacks in this region'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  Topic:
+    Type: AWS::SNS::Topic
+
+  Fn:
+    Type: AWS::Serverless::Function
+    Properties:
+      InlineCode: |
+        import os
+        import boto3
+
+        def handler(event, context):
+          print('event', event)
+          request_parameters = event['detail']['requestParameters']
+          response_elements = event['detail']['responseElements']
+          if response_elements:
+            stack_name = response_elements['stackId']
+          elif request_parameters:
+            stack_name = request_parameters['stackName']
+          else:
+            print('Could not find stack name in this event, skipping.')
+            return
+          topics = request_parameters['notificationARNs']
+          topic = os.environ['TOPIC']
+          if topic not in topics:
+            print('adding', topic, 'to', stack_name)
+            client = boto3.client('cloudformation')
+            parameters = list(map(lambda x: {'UsePreviousValue': True, 'ParameterKey': x['parameterKey']}, request_parameters['parameters']))
+            client.update_stack(StackName=stack_name, UsePreviousTemplate=True, Parameters=parameters, NotificationARNs=topics + [topic], Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'])
+            print('Successfully updated stack')
+          else:
+            print(topic, 'was already in', stack_name)
+      Handler: index.handler
+      Role: !Sub '${Role.Arn}'
+      Runtime: python3.7
+      Environment:
+        Variables:
+          CURRENT_STACK: !Ref AWS::StackId
+          TOPIC: !Ref Topic
+      Events:
+        Cw:
+          Type: CloudWatchEvent
+          Properties:
+            Pattern:
+              source: ['aws.cloudformation']
+              detail-type: ['AWS API Call via CloudTrail']
+              detail:
+                eventSource: ['cloudformation.amazonaws.com']
+                eventName: ['CreateStack', 'UpdateStack']
+
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole']
+      Policies:
+        - PolicyName: role
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:UpdateStack
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref Topic
+
+Outputs:
+  TopicArn:
+    Value: !Ref Topic
+  TopicName:
+    Value: !GetAtt Topic.TopicName
