@@ -36,8 +36,9 @@ Resources:
           if topic not in topics:
             print('adding', topic, 'to', stack_name)
             client = boto3.client('cloudformation')
-            parameters = list(map(lambda x: {'UsePreviousValue': True, 'ParameterKey': x['parameterKey']}, request_parameters['parameters']))
-            client.update_stack(StackName=stack_name, UsePreviousTemplate=True, Parameters=parameters, NotificationARNs=topics + [topic], Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'])
+            current_parameters = client.get_template_summary(StackName=stack_name)['Parameters']
+            parameter_input = list(map(lambda x: {'UsePreviousValue': True, 'ParameterKey': x['ParameterKey']}, current_parameters))
+            client.update_stack(StackName=stack_name, UsePreviousTemplate=True, Parameters=parameter_input, NotificationARNs=topics + [topic], Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'])
             print('Successfully updated stack')
           else:
             print(topic, 'was already in', stack_name)
@@ -51,6 +52,7 @@ Resources:
           - Effect: Allow
             Action:
               - cloudformation:UpdateStack
+              - cloudformation:GetTemplateSummary
             Resource: '*'
           - Effect: Allow
             Action:
