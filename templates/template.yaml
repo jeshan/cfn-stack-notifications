@@ -31,13 +31,13 @@ Resources:
           else:
             print('Could not find stack name in this event, skipping.')
             return
-          topics = request_parameters['notificationARNs']
+          client = boto3.client('cloudformation')
+          stack_info = client.describe_stacks(StackName=stack_name)['Stacks'][0]
+          topics = stack_info['NotificationARNs']
           topic = os.environ['TOPIC']
           if topic not in topics:
             print('adding', topic, 'to', stack_name)
-            client = boto3.client('cloudformation')
-            current_parameters = client.get_template_summary(StackName=stack_name)['Parameters']
-            parameter_input = list(map(lambda x: {'UsePreviousValue': True, 'ParameterKey': x['ParameterKey']}, current_parameters))
+            parameter_input = list(map(lambda x: {'UsePreviousValue': True, 'ParameterKey': x['ParameterKey']}, stack_info['Parameters']))
             client.update_stack(StackName=stack_name, UsePreviousTemplate=True, Parameters=parameter_input, NotificationARNs=topics + [topic], Capabilities=['CAPABILITY_IAM', 'CAPABILITY_NAMED_IAM', 'CAPABILITY_AUTO_EXPAND'])
             print('Successfully updated stack')
           else:
@@ -52,7 +52,7 @@ Resources:
           - Effect: Allow
             Action:
               - cloudformation:UpdateStack
-              - cloudformation:GetTemplateSummary
+              - cloudformation:DescribeStacks
             Resource: '*'
           - Effect: Allow
             Action:
