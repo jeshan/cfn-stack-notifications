@@ -10,6 +10,9 @@ def go(env):
         with open(f'config/{env}/{region}.yaml', 'w') as f:
             f.write(f"""template_path: template.yaml
 region: {region}
+
+parameters:
+  DlqName: {{{{stack_group_config.queue_name}}}}
 """)
 
 

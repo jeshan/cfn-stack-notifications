@@ -6,6 +6,8 @@ Parameters:
   TopicName:
     Type: String
     Default: cloudformation-stack-events
+  DlqName:
+    Type: String
 
 Resources:
   Topic:
@@ -58,6 +60,10 @@ Resources:
             Action:
               - sns:Publish
             Resource: !Ref Topic
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${DlqName}
       Environment:
         Variables:
           CURRENT_STACK: !Ref AWS::StackId

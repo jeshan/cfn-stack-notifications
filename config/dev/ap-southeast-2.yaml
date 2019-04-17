@@ -1,2 +1,5 @@
 template_path: template.yaml
 region: ap-southeast-2
+
+parameters:
+  DlqName: {{stack_group_config.queue_name}}
