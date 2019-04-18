@@ -1,4 +1,4 @@
 project_code: cfn-stack-notifications
 region: us-east-1
 
-queue_name: lambda-default-dlq
+dlq_name: lambda-default-dlq

@@ -12,7 +12,7 @@ def go(env):
 region: {region}
 
 parameters:
-  DlqName: {{{{stack_group_config.queue_name}}}}
+  DlqName: {{{{stack_group_config.dlq_name}}}}
 """)
 
 
