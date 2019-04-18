@@ -62,8 +62,8 @@ Resources:
             Resource: !Ref Topic
           - Effect: Allow
             Action:
-              - sqs:SendMessage
-            Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${DlqName}
+              - sns:Publish
+            Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${DlqName}
       Environment:
         Variables:
           CURRENT_STACK: !Ref AWS::StackId
