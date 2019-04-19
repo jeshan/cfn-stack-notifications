@@ -6,11 +6,16 @@ import boto3
 import yaml
 
 
+def run(command):
+    output = check_output(command.split(' ')).decode('utf-8')
+    print(output)
+
+
 def _configure_profile(profile_name, profile_role):
     print('Got', profile_role, 'for', profile_name)
-    check_output(f'aws configure set profile.{profile_name}.region us-east-1')
-    check_output(f'aws configure set profile.{profile_name}.credential_source EcsContainer')
-    check_output(f'aws configure set profile.{profile_name}.role_arn {profile_role}')
+    run(f'aws configure set profile.{profile_name}.region us-east-1')
+    run(f'aws configure set profile.{profile_name}.credential_source EcsContainer')
+    run(f'aws configure set profile.{profile_name}.role_arn {profile_role}')
 
 
 def configure_profile(repo, profile_name, parameters):
