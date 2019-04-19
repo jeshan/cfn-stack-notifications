@@ -1,5 +1,0 @@
-template_path: template.yaml
-region: ap-northeast-3
-
-parameters:
-  DlqName: {{stack_group_config.dlq_name}}
