@@ -1,0 +1,14 @@
+version: 0.2
+
+env:
+  parameter-store:
+    PROFILES: /github.com/jeshan/cfn-stack-notifications/aws-profiles
+
+phases:
+  pre_build:
+    commands:
+      - pip3 install sceptre
+  build:
+    commands:
+      - aws s3 sync --profile jeshanco s3://jeshan-oss-private-files/github.com/jeshan/cfn-stack-notifications/ .
+      - sceptre launch -y dev
