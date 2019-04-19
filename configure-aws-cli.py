@@ -20,9 +20,13 @@ def _configure_profile(profile_name, profile_role):
 
 def configure_profile(repo, profile_name, parameters):
     name = f'/github.com/{repo}/aws-profile-roles/{profile_name}'
+    role = None
     for param in parameters:
         if param['Name'] == name:
-            _configure_profile(profile_name, param['Value'])
+            role = param['Value']
+            _configure_profile(profile_name, role)
+    if not role:
+        raise Exception(f'Role for {profile_name} not found at {profile_name}, aborting.')
 
 
 def go(repo):
