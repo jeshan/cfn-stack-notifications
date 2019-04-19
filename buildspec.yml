@@ -7,8 +7,8 @@ env:
 phases:
   pre_build:
     commands:
-      - pip3 install sceptre
+      - pip3 install sceptre #sceptre-aws-resolver
   build:
     commands:
-      - aws s3 sync --profile jeshanco s3://jeshan-oss-private-files/github.com/jeshan/cfn-stack-notifications/ .
+      - aws s3 sync --profile jeshanco s3://jeshan-oss-private-files/github.com/jeshan/cfn-stack-notifications/master .
       - sceptre launch -y dev
