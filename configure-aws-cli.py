@@ -16,9 +16,11 @@ def run(command):
 
 def _configure_profile(profile_name, profile_role):
     print('Got', profile_role, 'for', profile_name)
-    run(f'aws configure set profile.{profile_name}.region us-east-1')
-    run(f'aws configure set profile.{profile_name}.credential_source EcsContainer')
-    run(f'aws configure set profile.{profile_name}.role_arn {profile_role}')
+    if profile_name != 'default':
+        profile_name = f'profile.{profile_name}'
+    run(f'aws configure set {profile_name}.region us-east-1')
+    run(f'aws configure set {profile_name}.credential_source EcsContainer')
+    run(f'aws configure set {profile_name}.role_arn {profile_role}')
 
 
 def configure_profile(repo, profile_name, parameters):
