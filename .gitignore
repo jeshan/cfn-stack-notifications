@@ -1,0 +1,7 @@
+config/*
+!config/deployment
+!config/config.yaml
+!config/dev
+
+.idea
+*.iml
