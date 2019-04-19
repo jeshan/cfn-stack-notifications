@@ -7,7 +7,7 @@ def run(command):
         output = check_output(command.split(' ')).decode('utf-8')
         print(output)
     except CalledProcessError as exc:
-        print("Status : FAIL", exc.returncode, exc.output)
+        print("Status : FAIL", exc.returncode, exc.output.decode('utf-8'))
 
 
 def go():
