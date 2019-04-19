@@ -1,10 +1,13 @@
 from glob import glob
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
 
 def run(command):
-    output = check_output(command.split(' ')).decode('utf-8')
-    print(output)
+    try:
+        output = check_output(command.split(' ')).decode('utf-8')
+        print(output)
+    except CalledProcessError as exc:
+        print("Status : FAIL", exc.returncode, exc.output)
 
 
 def go():
