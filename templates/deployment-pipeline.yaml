@@ -161,6 +161,10 @@ Resources:
               - iam:ListAttachedRolePolicies
               - iam:ListRolePolicies
               - iam:ListPolicyVersions
+              - iam:CreatePolicyVersion
+              - iam:GetPolicyVersion
+              - iam:DeletePolicyVersion
+              - iam:SetDefaultPolicyVersion
               - iam:UpdateAssumeRolePolicy
             Effect: Allow
             Resource: '*'
