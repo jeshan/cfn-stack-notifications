@@ -107,7 +107,7 @@ Resources:
               - cloudformation:UpdateStack
               - cloudformation:GetStackPolicy
             Effect: Allow
-            Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/cfn-stack-notifications-*/*
+            Resource: arn:aws:cloudformation:*:*:stack/cfn-stack-notifications-*/*
           - Action:
               - sts:AssumeRole
             Effect: Allow
