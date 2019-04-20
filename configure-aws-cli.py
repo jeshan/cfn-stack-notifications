@@ -2,7 +2,6 @@ import json
 import sys
 from glob import glob
 from subprocess import check_output, CalledProcessError
-from time import sleep
 
 import yaml
 
@@ -31,16 +30,15 @@ def go(repo):
         env = path[path.index('/') + 1:]
         env = env[:env.index('/')]
         key_path = f'{env}/base'
-        outputs_list = json.loads(run(f'sceptre --output json list outputs {key_path}'))
+        outputs_list = json.loads(run(f'sceptre --ignore-dependencies --output json list outputs {key_path}.yaml'))
         print(outputs_list)
         role = None
         for output_group in outputs_list:
             for key, outputs in output_group.items():
-                if key_path in output_group:
-                    for output in outputs:
-                        if output['OutputKey'] == 'TargetRole':
-                            role = output['OutputValue']
-                            _configure_profile(profile_name, role)
+                for output in outputs:
+                    if output['OutputKey'] == 'TargetRole':
+                        role = output['OutputValue']
+                        _configure_profile(profile_name, role)
         if not role:
             raise Exception(f'Role for {profile_name} not found in stack {key_path}, aborting.')
     _configure_profile(repo, 'default')
