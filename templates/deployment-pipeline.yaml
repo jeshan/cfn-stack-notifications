@@ -47,7 +47,6 @@ Resources:
               commands:
                 - aws s3 sync s3://${PRIVATE_BUCKET}/github.com/${REPO}/master .
                 - python configure-aws-cli.py ${REPO}
-                - cat ~/.aws/config
                 - python run-sceptre-all.py
                 - ./upload-public-templates.sh
       TimeoutInMinutes: 15
@@ -66,7 +65,6 @@ Resources:
             Effect: Allow
             Principal:
               Service: codebuild.amazonaws.com
-              AWS: arn:aws:iam::406883123076:user/jeshan
         Version: '2012-10-17'
       ManagedPolicyArns:
         - !Ref LogManagedPolicy
