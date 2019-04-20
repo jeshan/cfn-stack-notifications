@@ -68,10 +68,11 @@ or deploy manually with this button:
 </a>
 
 
-Then, run the pipeline. You have the ability to provide sceptre with the necessary configuration and credentials that you will want to keep private.
+You have the ability to provide sceptre with the necessary configuration and credentials that you will want to keep private.
 Read the buildspec for this, in particular:
 `aws s3 sync s3://${PRIVATE_BUCKET}/github.com/${REPO}/master .`
 
 You can place your private sceptre configuration at that location in a private bucket and they will be pulled on build.
 There's a script available to send these files to S3: Edit your private bucket in `upload-private-config.sh` and run it.
-That's all what's needed for sceptre to work.
+You need to create the role so that your deployment pipeline has permissions to deploy. To do that, for each environment, run `sceptre launch -y $ENV/base`
+Then, run the pipeline. That's all what's needed for sceptre to work.

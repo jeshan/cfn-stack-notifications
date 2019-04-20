@@ -9,6 +9,7 @@ Resources:
   Role:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: cfn-stack-notifications-target
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:

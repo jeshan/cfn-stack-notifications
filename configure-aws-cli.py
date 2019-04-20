@@ -1,4 +1,3 @@
-import json
 import sys
 from glob import glob
 from subprocess import check_output, CalledProcessError
@@ -26,21 +25,10 @@ def _configure_profile(profile_name, profile_role):
 
 def go(repo):
     for path in glob('config/*/config.yaml'):
-        profile_name = yaml.load(open(path))['profile']
-        env = path[path.index('/') + 1:]
-        env = env[:env.index('/')]
-        key_path = f'{env}/base'
-        outputs_list = json.loads(run(f'sceptre --ignore-dependencies --output json list outputs {key_path}.yaml'))
-        print(outputs_list)
-        role = None
-        for output_group in outputs_list:
-            for key, outputs in output_group.items():
-                for output in outputs:
-                    if output['OutputKey'] == 'TargetRole':
-                        role = output['OutputValue']
-                        _configure_profile(profile_name, role)
-        if not role:
-            raise Exception(f'Role for {profile_name} not found in stack {key_path}, aborting.')
+        parsed = yaml.load(open(path))
+        profile_name = parsed['profile']
+        account_id = parsed['account_id']
+        _configure_profile(profile_name, f'arn:aws:iam::{account_id}:role/cfn-stack-notifications-target')
     _configure_profile(repo, 'default')
 
 
