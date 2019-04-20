@@ -103,9 +103,6 @@ Resources:
               - cloudformation:DeleteStack
               - cloudformation:UpdateStack
               - cloudformation:GetStackPolicy
-            Effect: Allow
-            Resource: arn:aws:cloudformation:*:*:stack/cfn-stack-notifications-*/*
-          - Action:
               - cloudformation:DescribeStacks
             Effect: Allow
             Resource: '*'
