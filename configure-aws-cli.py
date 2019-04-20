@@ -31,8 +31,6 @@ def go(repo):
         env = path[path.index('/') + 1:]
         env = env[:env.index('/')]
         key_path = f'{env}/base'
-        run(f'sceptre launch -y {key_path}')
-        sleep(5)
         outputs_list = json.loads(run(f'sceptre --output json list outputs {key_path}'))
         print(outputs_list)
         role = None
