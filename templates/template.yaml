@@ -3,10 +3,9 @@ Description: 'adds an sns topic to all your cfn stacks in this region'
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
-  TopicName:
+  Role:
     Type: String
-    Default: cloudformation-stack-events
-  DlqName:
+  TopicName:
     Type: String
 
 Resources:
@@ -47,27 +46,8 @@ Resources:
       Handler: index.handler
       Timeout: 30
       MemorySize: 128
+      Role: !Ref Role
       Runtime: python3.7
-      Policies:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - iam:GetRole
-            Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/*
-          - Effect: Allow
-            Action:
-              - cloudformation:UpdateStack
-              - cloudformation:DescribeStacks
-            Resource: '*'
-          - Effect: Allow
-            Action:
-              - sns:Publish
-            Resource: !Ref Topic
-          - Effect: Allow
-            Action:
-              - sns:Publish
-            Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${DlqName}
       Environment:
         Variables:
           CURRENT_STACK: !Ref AWS::StackId

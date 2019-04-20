@@ -1,4 +1,6 @@
 template_path: deployment-target-account.yaml
 
 parameters:
-  DeployerRole: !stack_output deployment/pipeline.yaml::CodeBuildServiceRole
+  DeployerRole: arn:aws:iam::406883123076:role/service-role/cfn-stack-notifications-deployer
+  DlqName: {{stack_group_config.dlq_name}}
+  EventsTopicName: {{stack_group_config.events_topic_name}}

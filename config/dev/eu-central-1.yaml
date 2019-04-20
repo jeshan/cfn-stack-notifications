@@ -2,4 +2,5 @@ template_path: template.yaml
 region: eu-central-1
 
 parameters:
-  DlqName: {{stack_group_config.dlq_name}}
+  Role: !stack_output dev/base.yaml::FnRole
+  TopicName: {{stack_group_config.events_topic_name}}

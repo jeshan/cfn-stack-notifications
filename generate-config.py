@@ -12,6 +12,8 @@ def go(env):
 
 parameters:
   DeployerRole: arn:aws:iam::{os.environ['ACCOUNT_ID']}:role/service-role/cfn-stack-notifications-deployer
+  DlqName: {{{{stack_group_config.dlq_name}}}}
+  EventsTopicName: {{{{stack_group_config.events_topic_name}}}}
 """)
     for region in regions:
         with open(f'config/{env}/{region}.yaml', 'w') as f:
@@ -19,7 +21,8 @@ parameters:
 region: {region}
 
 parameters:
-  DlqName: {{{{stack_group_config.dlq_name}}}}
+  Role: !stack_output {env}/base.yaml::FnRole
+  TopicName: {{{{stack_group_config.events_topic_name}}}}
 """)
 
 
