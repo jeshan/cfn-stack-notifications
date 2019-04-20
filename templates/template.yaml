@@ -53,6 +53,10 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
+              - iam:GetRole
+            Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/*
+          - Effect: Allow
+            Action:
               - cloudformation:UpdateStack
               - cloudformation:DescribeStacks
             Resource: '*'
