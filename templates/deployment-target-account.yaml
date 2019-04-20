@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: 'deploy this in target account so that your codebuild project has permissions to deploy to it'
+
+Parameters:
+  DeployerRole:
+    Type: String
+
+Resources:
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Ref DeployerRole
+            Action: sts:AssumeRole
+
+Outputs:
+  TargetRole:
+    Value: !Sub '${Role.Arn}'

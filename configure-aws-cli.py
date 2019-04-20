@@ -1,8 +1,9 @@
+import json
 import sys
 from glob import glob
 from subprocess import check_output, CalledProcessError
+from time import sleep
 
-import boto3
 import yaml
 
 
@@ -24,24 +25,27 @@ def _configure_profile(profile_name, profile_role):
     run(f'aws configure set {profile_name}.role_arn {profile_role}')
 
 
-def configure_profile(repo, profile_name, parameters):
-    name = f'/github.com/{repo}/aws-profile-roles/{profile_name}'
-    role = None
-    for param in parameters:
-        if param['Name'] == name:
-            role = param['Value']
-            _configure_profile(profile_name, role)
-    if not role:
-        raise Exception(f'Role for {profile_name} not found at {profile_name}, aborting.')
-
-
 def go(repo):
-    client = boto3.client('ssm')
-    parameters = client.get_parameters_by_path(Path=f'/github.com/{repo}', Recursive=True)['Parameters']
     for path in glob('config/*/config.yaml'):
         profile_name = yaml.load(open(path))['profile']
-        configure_profile(repo, profile_name, parameters)
-    configure_profile(repo, 'default', parameters)
+        env = path[path.index('/') + 1:]
+        env = env[:env.index('/')]
+        key_path = f'{env}/base'
+        run(f'sceptre launch -y {key_path}')
+        sleep(5)
+        outputs_list = json.loads(run(f'sceptre --output json list outputs {key_path}'))
+        print(outputs_list)
+        role = None
+        for output_group in outputs_list:
+            for key, outputs in output_group.items():
+                if key_path in output_group:
+                    for output in outputs:
+                        if output['OutputKey'] == 'TargetRole':
+                            role = output['OutputValue']
+                            _configure_profile(profile_name, role)
+        if not role:
+            raise Exception(f'Role for {profile_name} not found in stack {key_path}, aborting.')
+    _configure_profile(repo, 'default')
 
 
 if __name__ == '__main__':
