@@ -7,11 +7,12 @@ import yaml
 
 
 def run(command):
+    print('Running', command)
     try:
         output = check_output(command.split(' ')).decode('utf-8')
-        print(output)
+        return output
     except CalledProcessError as exc:
-        print("Status : FAIL", exc.returncode, exc.output)
+        print("Status : FAIL", exc.returncode, exc.output.decode('utf-8'))
 
 
 def _configure_profile(profile_name, profile_role):
