@@ -54,3 +54,24 @@ TrailBucketPolicy:
             Service: cloudtrail.amazonaws.com
           Resource: !Sub ${TrailBucket.Arn}/AWSLogs/${AWS::AccountId}/*
 ```
+
+
+# For forkers
+You can setup a deployment pipeline on AWS by running:
+
+`sceptre launch -y deployment`
+
+or deploy manually with this button: 
+
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=cfn-stack-notifications-deployment-pipeline&templateURL=https://s3.amazonaws.com/jeshan-oss-public-files/cfn-stack-notifications-deployment-pipeline-template.yaml">
+<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
+</a>
+
+
+Then, run the pipeline. You have the ability to provide sceptre with the necessary configuration and credentials that you will want to keep private.
+Read the buildspec for this, in particular:
+`aws s3 sync s3://${PRIVATE_BUCKET}/github.com/${REPO}/master .`
+
+You can place your private sceptre configuration at that location in a private bucket and they will be pulled on build.
+There's a script available to send these files to S3: Edit your private bucket in `upload-private-config.sh` and run it.
+That's all what's needed for sceptre to work.
