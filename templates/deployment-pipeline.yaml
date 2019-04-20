@@ -45,8 +45,7 @@ Resources:
                 - pip3 install sceptre #sceptre-aws-resolver
             build:
               commands:
-                - export BRANCH=`git rev-parse --abbrev-ref HEAD`
-                - aws s3 sync s3://${PRIVATE_BUCKET}/github.com/${REPO}/${BRANCH} .
+                - aws s3 sync s3://${PRIVATE_BUCKET}/github.com/${REPO}/master .
                 - python configure-aws-cli.py ${REPO}
                 - python run-sceptre-all.py
                 - ./upload-public-templates.sh
