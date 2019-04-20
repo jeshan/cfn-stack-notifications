@@ -181,7 +181,7 @@ Resources:
               - events:PutTargets
               - events:RemoveTargets
             Effect: Allow
-            Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/cfn-stack-notifications-*'
+            Resource: !Sub 'arn:aws:events:*:${AWS::AccountId}:rule/cfn-stack-notifications-*'
         Version: '2012-10-17'
     Type: AWS::IAM::ManagedPolicy
 
