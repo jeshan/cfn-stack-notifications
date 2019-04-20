@@ -159,6 +159,7 @@ Resources:
               - iam:AttachRolePolicy
               - iam:ListAttachedRolePolicies
               - iam:ListRolePolicies
+              - iam:ListPolicyVersions
             Effect: Allow
             Resource: '*'
           - Action:
