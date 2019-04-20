@@ -1,0 +1,4 @@
+template_path: deployment-target-account.yaml
+
+parameters:
+  DeployerRole: !stack_output deployment/pipeline.yaml::CodeBuildServiceRole
