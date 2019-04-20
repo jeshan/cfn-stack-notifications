@@ -92,6 +92,7 @@ Resources:
               - iam:AttachRolePolicy
               - iam:ListAttachedRolePolicies
               - iam:ListRolePolicies
+              - iam:GetPolicy
             Effect: Allow
             Resource: '*'
           - Action:
