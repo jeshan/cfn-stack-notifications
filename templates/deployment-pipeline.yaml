@@ -5,6 +5,8 @@ Parameters:
   Repo:
     Type: String
     Default: jeshan/cfn-stack-notifications
+  PublicBucket:
+    Type: String
   PrivateBucket:
     Type: String
 
@@ -124,7 +126,7 @@ Resources:
           - Action:
               - s3:PutObject
             Effect: Allow
-            Resource: !Sub arn:aws:s3:::${PrivateBucket}/*
+            Resource: !Sub arn:aws:s3:::${PublicBucket}/*
           - Action:
               - codebuild:UpdateProject
               - codebuild:DeleteProject
