@@ -125,6 +125,11 @@ Resources:
               - s3:PutObject
             Effect: Allow
             Resource: !Sub arn:aws:s3:::${PrivateBucket}/*
+          - Action:
+              - codebuild:UpdateProject
+              - codebuild:DeleteProject
+            Effect: Allow
+            Resource: !Sub arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/deploy-cfn-stack-notifications
         Version: '2012-10-17'
     Type: AWS::IAM::ManagedPolicy
 
