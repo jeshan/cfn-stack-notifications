@@ -96,7 +96,6 @@ Resources:
       PolicyDocument:
         Statement:
           - Action:
-              - cloudformation:DescribeStacks
               - cloudformation:DescribeStackEvents
               - cloudformation:CreateStack
               - cloudformation:DescribeStackResource
@@ -106,6 +105,10 @@ Resources:
               - cloudformation:GetStackPolicy
             Effect: Allow
             Resource: arn:aws:cloudformation:*:*:stack/cfn-stack-notifications-*/*
+          - Action:
+              - cloudformation:DescribeStacks
+            Effect: Allow
+            Resource: '*'
           - Action:
               - sts:AssumeRole
             Effect: Allow
