@@ -1,0 +1,4 @@
+template_path: deployment-pipeline.yaml
+
+parameters:
+  PrivateBucket: jeshan-oss-private-files
