@@ -66,6 +66,10 @@ parameters:
             f.write(f"""template_path: template.yaml
 
 region: {region}
+
+parameters:
+  Role: !stack_output app/{env}/base.yaml::FnRole
+  TopicName: {{stack_group_config.events_topic_name}}
 """)
 
 

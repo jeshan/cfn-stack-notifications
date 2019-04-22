@@ -1,3 +1,7 @@
 template_path: template.yaml
 
 region: eu-west-1
+
+parameters:
+  Role: !stack_output app/dev/base.yaml::FnRole
+  TopicName: {stack_group_config.events_topic_name}
