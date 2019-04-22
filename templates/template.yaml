@@ -7,6 +7,7 @@ Parameters:
     Type: String
   TopicName:
     Type: String
+    Default: cloudformation-stack-events
 
 Resources:
   Topic:
