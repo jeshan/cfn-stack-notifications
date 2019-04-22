@@ -1,0 +1,5 @@
+template_path: deployment-target-account.yaml
+
+parameters:
+  DeploymentAccount: !environment_variable ACCOUNT_ID
+  ProjectName: {{stack_group_config.project_code}}

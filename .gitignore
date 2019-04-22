@@ -1,7 +1,6 @@
-config/*
-!config/deployment
-!config/config.yaml
-!config/dev
-
+config/
 .idea
 *.iml
+!/config/app/deployment/
+!/config/app/dev/
+!/config/config.yaml

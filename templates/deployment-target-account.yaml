@@ -2,11 +2,17 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: 'deploy this in target account so that your codebuild project has permissions to deploy to it'
 
 Parameters:
-  DeployerRole:
+  DeploymentAccount:
     Type: String
   DlqName:
     Type: String
-  EventsTopicName:
+    Description: The SNS topic in this region which you use as dead-letter queue. (Optional)
+    Default: ''
+  StackEventsTopic:
+    Type: String
+    Description: The SNS topic in this region where you publish Cloudformation stack events. (Optional)
+    Default: ''
+  ProjectName:
     Type: String
 
 Resources:
@@ -24,6 +30,7 @@ Resources:
         - !Ref FnPolicy
 
   FnPolicy:
+    Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
         Statement:
@@ -45,19 +52,19 @@ Resources:
           - Effect: Allow
             Action:
               - sns:Publish
-            Resource: !Sub arn:aws:sns:*:${AWS::AccountId}:${EventsTopicName}
+            Resource: !Sub arn:aws:sns:*:${AWS::AccountId}:${StackEventsTopic}
           - Effect: Allow
             Action:
               - sns:Publish
             Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${DlqName}
         Version: '2012-10-17'
-    Type: AWS::IAM::ManagedPolicy
 
-  CodebuildRole:
+  DeployerRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: cfn-stack-notifications-target
+      RoleName: !Sub ${ProjectName}-target
       ManagedPolicyArns:
+        - !Ref AppManagedPolicy
         - !Ref DeployManagedPolicy
         - !Ref TemplateManagedPolicy
       AssumeRolePolicyDocument:
@@ -65,13 +72,12 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Ref DeployerRole
+              AWS: !Sub arn:aws:iam::${DeploymentAccount}:role/${ProjectName}-deployer
             Action: sts:AssumeRole
 
   DeployManagedPolicy:
     Properties:
       Description: Policy used in trust relationship with CodeBuild
-      Path: /service-role/
       PolicyDocument:
         Statement:
           - Action:
@@ -83,7 +89,7 @@ Resources:
               - cloudformation:UpdateStack
               - cloudformation:GetStackPolicy
             Effect: Allow
-            Resource: !Sub arn:aws:cloudformation:*:${AWS::AccountId}:stack/cfn-stack-notifications-*/*
+            Resource: !Sub arn:aws:cloudformation:*:${AWS::AccountId}:stack/${ProjectName}-*/*
           - Action:
               - cloudformation:DescribeStacks
             Effect: Allow
@@ -103,10 +109,8 @@ Resources:
         Version: '2012-10-17'
     Type: AWS::IAM::ManagedPolicy
 
-  TemplateManagedPolicy:
+  AppManagedPolicy:
     Properties:
-      Description: Policy used in trust relationship with CodeBuild
-      Path: /service-role/
       PolicyDocument:
         Statement:
           - Action:
@@ -126,41 +130,42 @@ Resources:
               - lambda:AddPermission
               - lambda:RemovePermission
             Effect: Allow
-            Resource: '*'
-          - Action:
-              - iam:GetRole
-              - iam:CreateRole
-              - iam:DeleteRole
-              - iam:UpdateRole
-              - iam:PutRolePolicy
-              - iam:AttachRolePolicy
-              - iam:DetachRolePolicy
-              - iam:DeleteRolePolicy
-              - iam:AttachRolePolicy
-              - iam:ListAttachedRolePolicies
-              - iam:ListRolePolicies
-              - iam:GetPolicy
-            Effect: Allow
-            Resource: '*'
+            Resource: !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:${ProjectName}-*'
           - Action:
               - iam:PassRole
+              - iam:GetRole
             Effect: Allow
-            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/cfn-stack-notifications-*'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${ProjectName}-*'
           - Action:
-              - events:PutRule
-              - events:DeleteRule
-              - events:EnableRule
-              - events:DisableRule
-              - events:DescribeRule
-              - events:PutTargets
-              - events:RemoveTargets
+              - sns:Subscribe
+              - sns:Unsubscribe
             Effect: Allow
-            Resource: !Sub 'arn:aws:events:*:${AWS::AccountId}:rule/cfn-stack-notifications-*'
+            Resource:
+              - !Sub arn:aws:sns:*:${AWS::AccountId}:${StackEventsTopic}
+        Version: '2012-10-17'
+    Type: AWS::IAM::ManagedPolicy
+
+  TemplateManagedPolicy:
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - iam:ListPolicyVersions
+              - iam:CreatePolicy
+              - iam:DeletePolicy
+              - iam:GetPolicy
+              - iam:CreatePolicyVersion
+              - iam:DeletePolicyVersion
+              - iam:SetDefaultPolicyVersion
+              - iam:GetPolicyVersion
+            Effect: Allow
+            Resource:
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/${ProjectName}-*
         Version: '2012-10-17'
     Type: AWS::IAM::ManagedPolicy
 
 Outputs:
   TargetRole:
-    Value: !Sub '${CodebuildRole.Arn}'
+    Value: !Sub '${DeployerRole.Arn}'
   FnRole:
     Value: !Sub '${FnRole.Arn}'

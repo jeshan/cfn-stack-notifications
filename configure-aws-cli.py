@@ -1,8 +1,10 @@
-import sys
+import os
 from glob import glob
 from subprocess import check_output, CalledProcessError
 
 import yaml
+
+ACCOUNT_ID = os.environ['ACCOUNT_ID']
 
 
 def run(command):
@@ -20,17 +22,18 @@ def _configure_profile(profile_name, profile_role):
         profile_name = f'profile.{profile_name}'
     run(f'aws configure set {profile_name}.region us-east-1')
     run(f'aws configure set {profile_name}.credential_source EcsContainer')
-    run(f'aws configure set {profile_name}.role_arn {profile_role}')
+    if profile_role:
+        run(f'aws configure set {profile_name}.role_arn {profile_role}')
 
 
-def go(repo):
-    for path in glob('config/*/config.yaml'):
+def go():
+    for path in glob('config/app/*/config.yaml'):
         parsed = yaml.load(open(path))
         profile_name = parsed['profile']
-        account_id = parsed['account_id']
+        account_id = parsed.get('account_id', ACCOUNT_ID)
         _configure_profile(profile_name, f'arn:aws:iam::{account_id}:role/cfn-stack-notifications-target')
-    _configure_profile(repo, 'default')
+    _configure_profile('default', None)
 
 
 if __name__ == '__main__':
-    go(sys.argv[1])
+    go()

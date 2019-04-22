@@ -5,6 +5,8 @@ Parameters:
   Repo:
     Type: String
     Default: jeshan/cfn-stack-notifications
+  ProjectName:
+    Type: String
   PublicBucket:
     Type: String
   PrivateBucket:
@@ -18,7 +20,7 @@ Resources:
       BadgeEnabled: true
       Cache:
         Type: NO_CACHE
-      Description: deploys cfn-stack-notifications to all of my accounts
+      Description: !Sub deploys ${ProjectName} to all of my accounts
       EncryptionKey: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
@@ -30,7 +32,11 @@ Resources:
             Value: !Ref PrivateBucket
           - Name: REPO
             Value: !Ref Repo
-      Name: deploy-cfn-stack-notifications
+          - Name: ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: PROJECT_NAME
+            Value: !Ref ProjectName
+      Name: !Sub deploy-${ProjectName}
       ServiceRole: !GetAtt 'CodeBuildServiceRole.Arn'
       Source:
         GitCloneDepth: 1
@@ -44,13 +50,15 @@ Resources:
           phases:
             pre_build:
               commands:
-                - pip3 install sceptre #sceptre-aws-resolver
+                - pip3 install pipenv
+                - pipenv install --system
             build:
               commands:
                 - aws s3 sync s3://${PRIVATE_BUCKET}/github.com/${REPO}/master .
+                - python generate-config.py
                 - python configure-aws-cli.py ${REPO}
-                - python run-sceptre-all.py
-                - ./upload-public-templates.sh
+                - sceptre --no-colour launch -y app
+                - chmod +x upload-public-templates.sh && ./upload-public-templates.sh
       TimeoutInMinutes: 15
       Triggers:
         Webhook: true
@@ -72,14 +80,12 @@ Resources:
         - !Ref LogManagedPolicy
         - !Ref DeployManagedPolicy
         - !Ref TemplateManagedPolicy
-      Path: /service-role/
-      RoleName: cfn-stack-notifications-deployer
+      RoleName: !Sub ${ProjectName}-deployer
     Type: AWS::IAM::Role
 
   LogManagedPolicy:
     Properties:
       Description: Policy used in trust relationship with CodeBuild
-      Path: /service-role/
       PolicyDocument:
         Statement:
           - Action:
@@ -94,7 +100,6 @@ Resources:
   DeployManagedPolicy:
     Properties:
       Description: Policy used in trust relationship with CodeBuild
-      Path: /service-role/
       PolicyDocument:
         Statement:
           - Action:
@@ -106,7 +111,7 @@ Resources:
               - cloudformation:UpdateStack
               - cloudformation:GetStackPolicy
             Effect: Allow
-            Resource: arn:aws:cloudformation:*:*:stack/cfn-stack-notifications-*/*
+            Resource: !Sub arn:aws:cloudformation:*:*:stack/${ProjectName}-*/*
           - Action:
               - cloudformation:DescribeStacks
             Effect: Allow
@@ -124,6 +129,14 @@ Resources:
             Effect: Allow
             Resource: '*'
           - Action:
+              - s3:ListBucket
+            Effect: Allow
+            Resource: !Sub arn:aws:s3:::${PrivateBucket}
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource: !Sub arn:aws:s3:::${PrivateBucket}/*
+          - Action:
               - s3:PutObject
             Effect: Allow
             Resource: !Sub arn:aws:s3:::${PublicBucket}/*
@@ -131,68 +144,36 @@ Resources:
               - codebuild:UpdateProject
               - codebuild:DeleteProject
             Effect: Allow
-            Resource: !Sub arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/deploy-cfn-stack-notifications
+            Resource: !Sub arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/deploy-${ProjectName}
+          - Effect: Allow
+            Action:
+              - iam:GetRole
+            Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/*
         Version: '2012-10-17'
     Type: AWS::IAM::ManagedPolicy
 
   TemplateManagedPolicy:
     Properties:
       Description: Policy used in trust relationship with CodeBuild
-      Path: /service-role/
       PolicyDocument:
         Statement:
           - Action:
-              - sns:CreateTopic
-              - sns:DeleteTopic
-              - sns:GetTopicAttributes
-              - sns:SetTopicAttributes
-              - sns:ListTopics
+              - ssm:GetParameter
             Effect: Allow
-            Resource: '*'
+            Resource:
+              - !Sub arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/bot-token
+              - !Sub arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${ProjectName}/*
           - Action:
-              - lambda:CreateFunction
-              - lambda:DeleteFunction
-              - lambda:UpdateFunctionCode
-              - lambda:GetFunctionConfiguration
-              - lambda:UpdateFunctionConfiguration
-              - lambda:AddPermission
-              - lambda:RemovePermission
-            Effect: Allow
-            Resource: '*'
-          - Action:
-              - iam:GetRole
-              - iam:CreateRole
-              - iam:DeleteRole
-              - iam:UpdateRole
-              - iam:PutRolePolicy
-              - iam:AttachRolePolicy
-              - iam:DetachRolePolicy
-              - iam:DeleteRolePolicy
-              - iam:AttachRolePolicy
-              - iam:ListAttachedRolePolicies
-              - iam:ListRolePolicies
               - iam:ListPolicyVersions
+              - iam:CreatePolicy
+              - iam:DeletePolicy
+              - iam:GetPolicy
               - iam:CreatePolicyVersion
-              - iam:GetPolicyVersion
               - iam:DeletePolicyVersion
               - iam:SetDefaultPolicyVersion
-              - iam:UpdateAssumeRolePolicy
+              - iam:GetPolicyVersion
             Effect: Allow
-            Resource: '*'
-          - Action:
-              - iam:PassRole
-            Effect: Allow
-            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/cfn-stack-notifications-*'
-          - Action:
-              - events:PutRule
-              - events:DeleteRule
-              - events:EnableRule
-              - events:DisableRule
-              - events:DescribeRule
-              - events:PutTargets
-              - events:RemoveTargets
-            Effect: Allow
-            Resource: !Sub 'arn:aws:events:*:${AWS::AccountId}:rule/cfn-stack-notifications-*'
+            Resource: !Sub arn:aws:iam::${AWS::AccountId}:policy/${ProjectName}-*
         Version: '2012-10-17'
     Type: AWS::IAM::ManagedPolicy
 

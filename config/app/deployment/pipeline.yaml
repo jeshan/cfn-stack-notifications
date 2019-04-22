@@ -1,5 +1,6 @@
 template_path: deployment-pipeline.yaml
 
 parameters:
+  ProjectName: cfn-stack-notifications
   PrivateBucket: jeshan-oss-private-files
   PublicBucket: jeshan-oss-public-files
