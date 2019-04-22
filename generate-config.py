@@ -63,7 +63,7 @@ region: {region}
 
 parameters:
   Role: !stack_output app/{env}/base.yaml::FnRole
-  TopicName: {{stack_group_config.events_topic_name}}
+  TopicName: {{{{stack_group_config.events_topic_name}}}}
 """)
 
 
