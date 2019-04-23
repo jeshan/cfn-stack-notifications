@@ -10,7 +10,7 @@ Parameters:
     Default: lambda-default-dlq
   StackEventsTopic:
     Type: String
-    Description: The SNS topic in this region where you publish Cloudformation stack events. (Optional)
+    Description: The SNS topic in this region where you publish Cloudformation stack events.
   ProjectName:
     Type: String
 
