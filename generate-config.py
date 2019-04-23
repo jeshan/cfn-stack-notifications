@@ -31,12 +31,15 @@ def go(env):
             f.write(f"""profile: {env}
 """)
 
+    dlq_name = 'lambda-default-dlq'
+    events_topic = 'cloudformation-stack-events'
+
     with open('config/config.yaml', 'w') as f:
         f.write(f"""project_code: {project_name}
 region: us-east-1
 
-dlq_name: lambda-default-dlq
-events_topic_name: cloudformation-stack-events
+dlq_name: {dlq_name}
+events_topic_name: {events_topic}
 """)
 
     with open('config/app/deployment/pipeline.yaml', 'w') as f:
@@ -53,6 +56,8 @@ parameters:
 
 parameters:
   DeploymentAccount: '{account_id}'
+  DlqName: {dlq_name}
+  StackEventsTopic: {events_topic} 
   ProjectName: {{{{stack_group_config.project_code}}}}
 """)
     for region in regions:

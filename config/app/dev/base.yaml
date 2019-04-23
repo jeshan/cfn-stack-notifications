@@ -2,4 +2,6 @@ template_path: deployment-target-account.yaml
 
 parameters:
   DeploymentAccount: '406883123076'
+  DlqName: lambda-default-dlq
+  StackEventsTopic: cloudformation-stack-events 
   ProjectName: {{stack_group_config.project_code}}
