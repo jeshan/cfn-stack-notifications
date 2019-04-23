@@ -7,11 +7,10 @@ Parameters:
   DlqName:
     Type: String
     Description: The SNS topic in this region which you use as dead-letter queue. (Optional)
-    Default: ''
+    Default: lambda-default-dlq
   StackEventsTopic:
     Type: String
     Description: The SNS topic in this region where you publish Cloudformation stack events. (Optional)
-    Default: ''
   ProjectName:
     Type: String
 
