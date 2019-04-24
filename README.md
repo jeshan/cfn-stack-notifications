@@ -2,7 +2,7 @@
 
 Sets up an SNS topic for all your stacks in all regions.
 
-This will be useful when you want to track deployments. The SNS topics can relay messages to many destinations, including AWS Lambda. This means you can subscribe a function to the topic and send deployment events to your chatbot.
+This will be useful when you want to track deployments. The SNS topics can relay messages to many destinations, including AWS Lambda. This means you can subscribe a function to the topic and send deployment events to your chatbot. (see [this project](https://github.com/jeshan/cfn-failures-to-telegram) for an example that sends cloudformation failures to telegram)
 
 If needed, you can create a virtual env with `pipenv install`
 
@@ -12,14 +12,6 @@ This includes a deployment pipeline on AWS. Or deploy the pipeline manually with
 <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
 </a>
 
-
-You will need a telegram bot token and a telegram group (chat) id. Define them in us-east-1 as follows:
-
-```bash
-aws ssm put-parameter --name bot-token --type SecureString --value $YOUR_TOKEN --region us-east-1 
-aws ssm put-parameter --name /cfn-stack-notifications/chat-id --type String --value $YOUR_CHAT_ID --region us-east-1
-sceptre launch -y app
-``` 
 
 # Adding private sceptre configuration
 The build process also generates boilerplate configuration with `python generate-config.py`.
