@@ -12,6 +12,13 @@ This includes a deployment pipeline on AWS. Or deploy the pipeline manually with
 <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
 </a>
 
+## Infrastructure
+This is what will get deployed:
+
+![](/diagram.png)
+
+![](/diagram-base.png)
+
 
 # Adding private sceptre configuration
 The build process also generates boilerplate configuration with `python generate-config.py`.
