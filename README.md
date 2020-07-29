@@ -19,6 +19,8 @@ This is what will get deployed:
 
 ![](/diagram-base.png)
 
+*Images automatically generated with [cfnbuddy](https://www.cfnbuddy.com)*
+
 
 # Adding private sceptre configuration
 The build process also generates boilerplate configuration with `python generate-config.py`.
